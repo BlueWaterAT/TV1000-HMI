@@ -1,0 +1,10 @@
+null,null,null,null,null,null,null,null,null
+null,null,null,null,null,null,null,null,null
+null,108,S,2,800,R,U,N,0
+null,105,null,2,900,F,null,null,30
+1,106,R,1,500,F,3,3,3
+3,101,S,1,999,R,U,C,0
+8,102,S,2,500,R,U,N,0
+50,109,L,2,400,F,U,N,0
+69,110,R,6,null,R,null,null,null
+77,105,S,11,300,R,U,C,0

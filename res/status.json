@@ -1,0 +1,103 @@
+[
+    {
+        "name":"E-Stop",
+        "datapath":"test1.txt"
+    },
+    {
+        "name":"On Path",
+        "datapath":""
+    },
+    {
+        "name":"Laser Slow",
+        "datapath":""
+    },
+    {
+        "name":"Laser Stop",
+        "datapath":""
+    },
+    {
+        "name":"Motor Control",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    {
+        "name":"Test Status",
+        "datapath":""
+    },
+    
+]

@@ -1,0 +1,11 @@
+{
+    "font-size":20,
+    "file-poll-delay":100,
+    "status-bar-path":"status.csv",
+    "vehicle-name":"TV1000",
+    "spinners-per-page":5,
+    "csv-list-limit":50,
+    "bg-color":"#000000",
+    "fg-color":"#FF0000",
+    "button-color":"#0000FF"
+}

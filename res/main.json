@@ -1,0 +1,54 @@
+{
+    "status":[
+        {
+            "name":"Current",
+            "datapath":""
+        },
+        {
+            "name":"Previous",
+            "datapath":""
+        },
+        {
+            "name":"View",
+            "datapath":""
+        },
+        {
+            "name":"Pin",
+            "datapath":""
+        },
+        {
+            "name":"Mode",
+            "datapath":""
+        },
+        {
+            "name":"Direction",
+            "datapath":""
+        },
+        {
+            "name":"Speed",
+            "datapath":""
+        }
+    ],
+    "pages":[
+        "Log",
+        "Status",
+        "I/O",
+        "Path Program",
+        "Program RFID/PIN",
+        "Config"
+    ],
+    "timers":[
+        {
+            "name":"RFID",
+            "datapath":"test.txt"
+        },
+        {
+            "name":"Avenue",
+            "datapath":""
+        },
+        {
+            "name":"Vehicle",
+            "datapath":""
+        }
+    ]
+}

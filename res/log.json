@@ -1,0 +1,16 @@
+{
+    "tabs":[
+        {
+            "name":"Alarms",
+            "datapath":"alarms.csv"
+        },
+        {
+            "name":"Events",
+            "datapath":""
+        },
+        {
+            "name":"RFID",
+            "datapath":""
+        }
+    ]
+}
