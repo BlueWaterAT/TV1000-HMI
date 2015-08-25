@@ -35,7 +35,8 @@
         "I/O",
         "Path Program",
         "Program RFID/PIN",
-        "Config"
+        "Config",
+        "Network Settings"
     ],
     "timers":[
         {

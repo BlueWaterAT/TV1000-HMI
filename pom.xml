@@ -17,16 +17,11 @@
 			</plugin>
 		</plugins>
 		<resources>
-     <resource>
-       <directory>${basedir}/res</directory>
-     </resource>
-   </resources>
+			<resource>
+				<directory>${basedir}/res</directory>
+			</resource>
+		</resources>
 	</build>
 	<dependencies>
-		<!--  <dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20141113</version>
-		</dependency>-->
 	</dependencies>
 </project>

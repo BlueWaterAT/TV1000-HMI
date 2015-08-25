@@ -21,6 +21,7 @@ import com.bwat.hmi.page.HMIPage;
 import com.bwat.hmi.page.IOPage;
 import com.bwat.hmi.page.LogPage;
 import com.bwat.hmi.page.MainPage;
+import com.bwat.hmi.page.NetSettingsPage;
 import com.bwat.hmi.page.ProgramPage;
 import com.bwat.hmi.page.RFIDPage;
 import com.bwat.hmi.page.StatusPage;
@@ -56,6 +57,7 @@ public class HMI extends JPanel {
 	ProgramPage prg;
 	RFIDPage rfid;
 	ConfigPage config;
+	NetSettingsPage netSettings;
 	
 	// Stores the name of the page currently being displayed
 	String currentPage;
@@ -122,6 +124,7 @@ public class HMI extends JPanel {
 		addCard( cardPanel, prg = new ProgramPage() );
 		addCard( cardPanel, rfid = new RFIDPage() );
 		addCard( cardPanel, config = new ConfigPage() );
+		addCard( cardPanel, netSettings = new NetSettingsPage() );
 		
 		setLayout( new BorderLayout() );
 		add( cardPanel, BorderLayout.CENTER );
