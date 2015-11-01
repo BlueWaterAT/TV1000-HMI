@@ -9,6 +9,10 @@ public class Constants {
 	public static int HV_GAP = 15;
 	public static int DEFAULT_PAGE_SPINNERS = 5;
 	
+	public static final String KEY_DATA_TYPE = "type";
+	public static final String DATA_TYPE_NUM = "number";
+	public static final String DATA_TYPE_STR = "string";
+	
 	public static final class SETTINGS {
 		public static final String PATH = "settings.json";
 		
@@ -52,7 +56,8 @@ public class Constants {
 	
 	public static final class IO {
 		public static final String PATH = "io.json";
-		
+
+		public static final String KEY_COLS = "cols";
 		public static final String KEY_INPUTS = "inputs";
 		public static final String KEY_OUTPUTS = "outputs";
 		public static final String KEY_NAME = "name";
@@ -87,5 +92,13 @@ public class Constants {
 		// public static final String KEY_STEP = "step";
 		public static final String KEY_MIN = "min";
 		public static final String KEY_MAX = "max";
+	}
+	
+	public static final class NET {
+		public static final String PATH = "net.json";
+		
+		public static final String KEY_VALUES = "values";
+		public static final String KEY_NAME = "name";
+		public static final String KEY_DATAPATH = "datapath";
 	}
 }

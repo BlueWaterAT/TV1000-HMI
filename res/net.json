@@ -1,0 +1,12 @@
+{
+    "values":[
+        {
+            "name":"AVINU IP",
+            "datapath":"avinuip"
+        },
+        {
+            "name":"AVINU PORT",
+            "datapath":"avinuport"
+        }
+    ]
+}

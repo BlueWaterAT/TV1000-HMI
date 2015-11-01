@@ -5,11 +5,13 @@
             "datapath":"test.txt",
             "step":5,
             "min":0,
-            "max":102
+            "max":102,
+            "type":"number"
         },
         {
             "name":"T2",
-            "datapath":""
+            "datapath":"test1.txt",
+            "type":"string"
         },
         {
             "name":"T3",

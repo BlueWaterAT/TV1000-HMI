@@ -5,18 +5,18 @@ Route,Tag,Brn,View,Speed,Dir,Pin,Chg,ChgTm
  , , , , , , , , 
 
 ;The following lines are all the data types of the columns
-;There are 3 types: Text, Checkbox, and ComboBox. Their syntax is as follows:
+;There are 4 types: Text, Checkbox, Combo Box, and Number. Their syntax is as follows:
 ;"text"
 ;"check"
 ;"combo,choice,choice,choice,..."
+;"number"
 ;The number of lines MUST equal the number of columns
 number
-combo,101,102,103,104,105,106,107,108,109,110
+number
 combo,L,R,S
-combo,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
-combo,0,100,200,300,400,500,600,700,800,900,999
+number
+number
 combo,F,R
 combo,U,D
-combo,C,N
-combo,0,10,20,30,40,50,60,70,80,90,100
-  
+combo,C,N,H,J
+number

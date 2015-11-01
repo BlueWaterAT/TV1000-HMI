@@ -47,11 +47,15 @@ public class IOPage extends HMIPage {
 		// INPUTS
 		JSONArray inputs = json.getJSONArray( Constants.IO.KEY_INPUTS );
 		JPanel inputsPanel = new JPanel( new GridLayout( 1, inputs.length(), Constants.HV_GAP, 0 ) );
-		for ( int i = 0; i < inputs.length(); i++ ) {
+		
+		//Get column count, defaults to 2
+		int cols = json.has( Constants.IO.KEY_COLS ) ? json.getInt( Constants.IO.KEY_COLS ) : 2;
+		
+		for ( int i = 0; i < cols; i++ ) {
 			JPanel input = new JPanel( new BorderLayout() );
-			input.add( new JLabel( "Input Card " + i, JLabel.CENTER ), BorderLayout.NORTH );
-			
-			JPanel ioListPanel = createIOPanel( inputs.getJSONArray( i ) );
+			input.add( new JLabel( "Input Bank " + i, JLabel.CENTER ), BorderLayout.NORTH );
+			int div = (int) Math.round( (double)inputs.length()/cols ); 
+			JPanel ioListPanel = createIOPanel( inputs, i*div, (i+1)*div);
 			input.add( ioListPanel, BorderLayout.CENTER );
 			
 			inputsPanel.add( input );
@@ -61,11 +65,12 @@ public class IOPage extends HMIPage {
 		// OUTPUTS
 		JSONArray outputs = json.getJSONArray( Constants.IO.KEY_OUTPUTS );
 		JPanel outputsPanel = new JPanel( new GridLayout( 1, outputs.length(), Constants.HV_GAP, 0 ) );
-		for ( int i = 0; i < outputs.length(); i++ ) {
+		for ( int i = 0; i < cols; i++ ) {
 			JPanel output = new JPanel( new BorderLayout() );
-			output.add( new JLabel( "Output Card " + i, JLabel.CENTER ), BorderLayout.NORTH );
-			
-			JPanel ioListPanel = createIOPanel( outputs.getJSONArray( i ) );
+			output.add( new JLabel( "Output Bank " + i, JLabel.CENTER ), BorderLayout.NORTH );
+
+			int div = (int) Math.round( (double)outputs.length()/cols ); 
+			JPanel ioListPanel = createIOPanel( outputs, i*div, (i+1)*div);
 			output.add( ioListPanel, BorderLayout.CENTER );
 			
 			outputsPanel.add( output );
@@ -93,11 +98,11 @@ public class IOPage extends HMIPage {
 		cl.show( ioPanel, Constants.IO.KEY_INPUTS );
 	}
 	
-	private JPanel createIOPanel( JSONArray ioList ) {
-		JPanel ios = new JPanel( new GridLayout( ioList.length(), 1, 0, Constants.HV_GAP ) );
-		for ( int i = 0; i < ioList.length(); i++ ) {
+	private JPanel createIOPanel( JSONArray ioList, int min, int max ) {
+		JPanel ios = new JPanel( new GridLayout( max - min, 1, 0, Constants.HV_GAP ) );
+		for ( int i = min; i < Math.min( ioList.length(), max); i++ ) {
 			JSONObject ioEntry = ioList.getJSONObject( i );
-			ios.add( new IOItem( ioEntry.getString( Constants.IO.KEY_NAME ), ioEntry.getString( Constants.IO.KEY_DATAPATH ), "" + i ) );
+			ios.add( new IOItem( ioEntry.getString( Constants.IO.KEY_NAME ), ioEntry.getString( Constants.IO.KEY_DATAPATH ), String.format( "%02d", i ) ) );
 		}
 		return ios;
 	}

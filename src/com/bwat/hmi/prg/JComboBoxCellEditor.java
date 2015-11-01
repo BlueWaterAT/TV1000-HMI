@@ -9,8 +9,11 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableCellEditor;
 
 public class JComboBoxCellEditor extends DefaultCellEditor implements TableCellEditor {
+	public JComboBox jcb;
+	
 	public JComboBoxCellEditor( JComboBox jcb, Font f ) {
 		super( jcb );
 		jcb.setFont( f );
+		this.jcb = jcb;
 	}
 }

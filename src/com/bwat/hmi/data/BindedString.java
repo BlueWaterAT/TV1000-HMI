@@ -17,18 +17,14 @@ public class BindedString {
 	private BindedStringListener listener = null;
 	private File bindedFile = null;
 	
-	public BindedString( File src, BindedStringListener listener ) {
-		this( src.getPath(), listener );
-	}
-	
-	public BindedString( String srcPath, BindedStringListener listener ) {
+	public BindedString( File src, BindedStringListener listener, String watchPath ) {
 		// Set initial content
-		bindedFile = FileUtils.getFile( srcPath );
+		bindedFile = src;
 		setContent( bindedFile.exists() && bindedFile.isFile() ? FileUtils.readToString( bindedFile ) : "" );
 		
 		// Listen for changes to the file and update the content
 		this.listener = listener;
-		FileWatcher.watchFile( srcPath, new FileListener() {
+		FileWatcher.watchFile( watchPath, new FileListener() {
 			@Override
 			public void fileDeleted( File f ) {
 				setContent( "" );
@@ -47,6 +43,14 @@ public class BindedString {
 				}
 			}
 		} );
+	}
+	
+	public BindedString( File src, BindedStringListener listener ) {
+		this( src, listener, src.getAbsolutePath() );
+	}
+	
+	public BindedString( String srcPath, BindedStringListener listener ) {
+		this( FileUtils.getFile( srcPath ), listener, srcPath );
 	}
 	
 	/**

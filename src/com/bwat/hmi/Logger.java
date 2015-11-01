@@ -28,7 +28,7 @@ public class Logger {
 				out = new BufferedWriter( new FileWriter( LOG_FILE ) );
 			} catch ( IOException e ) {
 				System.err.println( "FAILED TO CREATE LOG FILE" );
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		} else {
 			fileCreated = true;
@@ -45,14 +45,16 @@ public class Logger {
 		if ( !fileCreated ) {
 			createLogFile();
 		}
-		try {
-			for ( String line : message.split( "\n" ) ) {
-				out.write( line );
-				out.newLine();
+		if ( fileCreated ) {
+			try {
+				for ( String line : message.split( "\n" ) ) {
+					out.write( line );
+					out.newLine();
+				}
+				out.flush();
+			} catch ( IOException e ) {
+				// e.printStackTrace();
 			}
-			out.flush();
-		} catch ( IOException e ) {
-			e.printStackTrace();
 		}
 	}
 }

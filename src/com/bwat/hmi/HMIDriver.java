@@ -40,7 +40,6 @@ public class HMIDriver {
 			frame.setResizable( false );
 			frame.setVisible( true );
 			
-//			KeyboardDialog.showDialog( "KB", "" );
 		} catch ( Exception e ) {
 			// just so we get some kind of response if the HMI doesn't run
 			Logger.logLine( "ERROR: " + e.getMessage() );

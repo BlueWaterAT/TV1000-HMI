@@ -55,6 +55,7 @@ import org.json.JSONObject;
 
 import com.bwat.hmi.Constants;
 import com.bwat.hmi.HMI;
+import com.bwat.hmi.Logger;
 import com.bwat.hmi.file.FileListenerAdapter;
 import com.bwat.hmi.file.FileWatcher;
 import com.bwat.hmi.ui.KeypadDialog;
@@ -80,6 +81,10 @@ public class InteractiveJTable extends JPanel {
 	private ParameterEditor paramEditor;
 	private JSONObject settings;
 	public boolean loadingTable = false;
+	// boolean savingTable = false;
+	
+	long lastSaveTime = 0;
+	final long SAVE_RELOAD_TIME = 3000;
 	
 	public InteractiveJTable() {
 		// Load settings
@@ -94,8 +99,9 @@ public class InteractiveJTable extends JPanel {
 				if ( !loadingTable ) {
 					CellType type = columnTypes.get( columnIndex );
 					if ( type == CellType.COMBO ) {
-						JComboBox<String> combo = (JComboBox<String>) table.getCellRenderer( 0, columnIndex );
-						
+						// JComboBox<String> combo = (JComboBox<String>) table.getCellRenderer( 0, columnIndex
+						// );
+						JComboBox<String> combo = ( (JComboBoxCellEditor) table.getCellEditor( 0, columnIndex ) ).jcb;
 						// Convert combo entries to an array because this method doesn't exist for some god
 						// forsaken reason
 						String[] entries = new String[combo.getItemCount()];
@@ -112,6 +118,7 @@ public class InteractiveJTable extends JPanel {
 		
 		// Intial setup
 		table.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+		// table.setRowSelectionAllowed( false );
 		int rowHeight = settings.has( Constants.PROGRAM.KEY_ROW_H ) ? settings.getInt( Constants.PROGRAM.KEY_ROW_H ) : 50;
 		table.setRowHeight( rowHeight );
 		paramEditor = new ParameterEditor( 255, getBackground(), getForeground() );
@@ -208,11 +215,13 @@ public class InteractiveJTable extends JPanel {
 		table.getModel().addTableModelListener( new TableModelListener() {
 			@Override
 			public void tableChanged( TableModelEvent e ) {
+				// savingTable = true;
 				SwingUtilities.invokeLater( new Runnable() {
 					@Override
 					public void run() {
 						if ( uneditedData != null && !uneditedData.equals( exportTableData() ) ) {
 							if ( openFilePath != null ) {
+								lastSaveTime = System.currentTimeMillis();
 								saveProgram();
 							}
 						}
@@ -227,31 +236,49 @@ public class InteractiveJTable extends JPanel {
 			};
 			
 			public void fileChanged( final File f ) {
-				SwingUtilities.invokeLater( new Runnable() {
-					@Override
-					public void run() {
-						String name = f.getName();
-						if ( name.endsWith( EXTENSION ) ) {
-							int prg = (int) indexSelector.getValue();
-							loadTable();
-							indexSelector.setValue( prg );
-						}
-						if ( name.endsWith( PROGRAM_EXTENSION ) ) {
-							int prg = Integer.parseInt( name.substring( name.lastIndexOf( "-" ) + 1, name.lastIndexOf( PROGRAM_EXTENSION ) ) );
-							if ( !indexSelector.getValue().equals( prg ) ) {
-								indexSelector.setValue( prg );
-							} else {
-								loadProgram( prg );
+				// Whenever the table is saved, it will trigger the file watcher
+				// This is here to prevent the table from reloading every time a change is made
+				if ( System.currentTimeMillis() - lastSaveTime > SAVE_RELOAD_TIME ) {
+					// savingTable = false;
+					// } else {
+					System.out.println( "LOADING ON CHANGE" );
+					// Logger.logLine( "LOADING ON CHANGE" );
+					SwingUtilities.invokeLater( new Runnable() {
+						@Override
+						public void run() {
+							String name = f.getName();
+							/*if ( name.endsWith( EXTENSION ) ) {
+								loadTable();
+							} else */if ( name.endsWith( PROGRAM_EXTENSION ) ) {
+								int prg = Integer.parseInt( name.substring( name.lastIndexOf( "-" ) + 1, name.lastIndexOf( PROGRAM_EXTENSION ) ) );
+								if ( !indexSelector.getValue().equals( prg ) ) {
+									indexSelector.setValue( prg );
+								} else {
+									loadProgram( prg );
+								}
+							} else if ( name.endsWith( ParameterEditor.PARAM_EXTENSION ) ) {
+								paramEditor.loadParameters();
 							}
-						} else if ( name.endsWith( ParameterEditor.PARAM_EXTENSION ) ) {
-							paramEditor.loadParameters();
 						}
-					}
-				} );
-				
+					} );
+				}
 			};
 		} );
 	}
+	
+	// timing crap
+	long start = 0;
+	
+	//
+	// void tstart() {
+	// start = System.currentTimeMillis();
+	// }
+	//
+	// void tend() {
+	// long time = System.currentTimeMillis() - start;
+	// System.out.println( "Time: " + time + " ms" );
+	// // Logger.logLine( "Time: " + time + " ms" );
+	// }
 	
 	public void loadProgram( int prog ) {
 		if ( prog > 0 ) {
@@ -318,7 +345,7 @@ public class InteractiveJTable extends JPanel {
 									String newValue;
 									if ( numeric ) {
 										// Get a new value using the keypad interface
-										newValue = KeypadDialog.showDialog( "Enter Value", "");
+										newValue = KeypadDialog.showDialog( "Enter Value", "" );
 										
 										// Revert back to the original value if an invalid number is entered,
 										// or the number entered is not an option
@@ -344,9 +371,11 @@ public class InteractiveJTable extends JPanel {
 						}
 					} );
 					table.getColumnModel().getColumn( column ).setCellEditor( new JComboBoxCellEditor( combo, getFont() ) );
-					JComboBoxCellRenderer renderer = new JComboBoxCellRenderer( getFont(), getBackground(), getForeground() );
-					renderer.setModel( new DefaultComboBoxModel<String>( comboEntries ) );
-					table.getColumnModel().getColumn( column ).setCellRenderer( renderer );
+					// JComboBoxCellRenderer renderer = new JComboBoxCellRenderer( getFont(), getBackground(),
+					// getForeground() );
+					// renderer.setModel( new DefaultComboBoxModel<String>( comboEntries ) );
+					// table.getColumnModel().getColumn( column ).setCellRenderer( renderer );
+					table.getColumnModel().getColumn( column ).setCellRenderer( new DefaultTableCellRenderer() );
 					break;
 				case CHECK:
 					table.getColumnModel().getColumn( column ).setCellEditor( table.getDefaultEditor( Boolean.class ) );
@@ -367,7 +396,8 @@ public class InteractiveJTable extends JPanel {
 									// Get a new value using the keypad interface
 									newValue = KeypadDialog.showDialog( "Enter Value", "" );
 									if ( !StringUtils.isNumber( newValue ) ) {
-										newValue = table.getValueAt( table.rowAtPoint( c.getLocation() ), column ).toString();
+										Object tval = table.getValueAt( table.rowAtPoint( c.getLocation() ), column );
+										newValue = tval == null ? "0" : tval.toString();
 									}
 									// Set the new value and make it visible
 									table.setValueAt( StringUtils.isNumber( newValue ) ? Integer.parseInt( newValue ) : null, table.rowAtPoint( c.getLocation() ), column );
@@ -388,8 +418,17 @@ public class InteractiveJTable extends JPanel {
 		}
 	}
 	
-	public void insertRow() {
+	public void insertRow( /* boolean force */) {
+		// if ( force ) {
 		( (DefaultTableModel) table.getModel() ).addRow( new Vector<Object>() );
+		// } else {
+		// SwingUtilities.invokeLater( new Runnable() {
+		// @Override
+		// public void run() {
+		// ( (DefaultTableModel) table.getModel() ).addRow( new Vector<Object>() );
+		// }
+		// } );
+		// }
 	}
 	
 	public void deleteRow( int row ) {
@@ -432,6 +471,7 @@ public class InteractiveJTable extends JPanel {
 	}
 	
 	public void loadTable() {
+		System.out.println( "LOAD TABLE" );
 		loadingTable = true;
 		// Some initial setup
 		// save.setEnabled( true );
@@ -475,8 +515,10 @@ public class InteractiveJTable extends JPanel {
 		loadingTable = false;
 	}
 	
-	public void loadTableData( String path ) {
+	public void loadTableData( final String path ) {
 		try {
+			System.out.println( "LOAD" );
+			// Logger.logLine( "LOAD" );
 			Scanner scan = new Scanner( FileUtils.getFile( path ) );
 			String[] data;
 			String line;
