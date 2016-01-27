@@ -1,0 +1,34 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+sourceSets {
+    main {
+        output.resourcesDir 'build/classes/main'
+        java {
+            srcDir 'src/'
+        }
+        resources {
+            srcDir 'res/'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.json:json:20151123'
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'TV1000 HMI', 'Main-Class': 'com.bwat.hmi.HMIDriver'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', '*.json', '*.csv', '*.txt', 'interfaces'
+}
+
