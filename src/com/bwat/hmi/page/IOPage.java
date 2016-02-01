@@ -88,7 +88,7 @@ public class IOPage extends HMIPage {
 
         right.add(ioSwitchPanel, BorderLayout.NORTH);
 
-//		right.add( HMI.getInstance().generateReturnButton(), BorderLayout.SOUTH );
+        //		right.add( HMI.getInstance().generateReturnButton(), BorderLayout.SOUTH );
         add(right, BorderLayout.EAST);
         add(getButtonPanel(ioSwitchPanel), BorderLayout.EAST);
 

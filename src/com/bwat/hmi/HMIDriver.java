@@ -1,14 +1,19 @@
 package com.bwat.hmi;
 
 import com.bwat.hmi.util.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.util.Arrays;
 
 public class HMIDriver {
+    static Logger log = LoggerFactory.getLogger(HMIDriver.class);
+
     public static boolean dev = false; // Just so I don't have to deal with fullscreen
 
     public static void main(String[] args) {
@@ -45,8 +50,7 @@ public class HMIDriver {
 
         } catch (Exception e) {
             // just so we get some kind of response if the HMI doesn't run
-            Logger.logLine("ERROR: " + e.getMessage());
-            e.printStackTrace();
+            log.error("FATAL: HMI has crashed. Exception details: {}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()) );
         }
     }
 }

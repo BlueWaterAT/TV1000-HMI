@@ -34,56 +34,51 @@ public class NetSettingsPage extends HMIPage {
         setLayout(new BorderLayout(Constants.HV_GAP, Constants.HV_GAP));
 
         if (HMIDriver.dev) {
-            interfacesContent = new BindedString(INTERFACES_PATH, new BindedStringListener() {
-                // interfacesContent = new BindedString( "interfaces", new BindedStringListener() {
-                @Override
-                public void stringChanged(String content) {
-                    updateValues();
-                }
-            });
+            add(new JLabel("UNSUPPORTED IN DEV MODE"));
+            add(getButtonPanel(), BorderLayout.EAST);
         } else {
             interfacesContent = new BindedString(new File(INTERFACES_PATH), new BindedStringListener() {
-                // interfacesContent = new BindedString( "interfaces", new BindedStringListener() {
                 @Override
                 public void stringChanged(String content) {
                     updateValues();
                 }
             });
-        }
 
-        JPanel settingsPanel = new JPanel(new BorderLayout(Constants.HV_GAP, Constants.HV_GAP));
-        JSONArray values = JSONUtils.loadObjectFromFile(Constants.NET.PATH).getJSONArray(Constants.NET.KEY_VALUES);
 
-        JPanel labelPanel = new JPanel(new GridLayout(INTERFACES_SETTINGS.length + values.length(), 1));
-        JPanel valPanel = new JPanel(new GridLayout(INTERFACES_SETTINGS.length + values.length(), 1));
-        for (int i = 0; i < INTERFACES_SETTINGS.length; i++) {
-            labelPanel.add(new JLabel(INTERFACES_SETTINGS[i]));
-            valPanel.add(settingVals[i] = new SettingsValueButton());
-        }
-        updateValues();
+            JPanel settingsPanel = new JPanel(new BorderLayout(Constants.HV_GAP, Constants.HV_GAP));
+            JSONArray values = JSONUtils.loadObjectFromFile(Constants.NET.PATH).getJSONArray(Constants.NET.KEY_VALUES);
 
-        for (int i = 0; i < values.length(); i++) {
-            // StatusNumberItem value = new StatusNumberItem( jsonValue.getString( Constants.NET.KEY_NAME ),
-            // jsonValue.getString( Constants.NET.KEY_DATAPATH ));
-            labelPanel.add(new JLabel(values.getJSONObject(i).getString(Constants.NET.KEY_NAME)));
-            final BindedJButton val = new BindedJButton(values.getJSONObject(i).getString(Constants.NET.KEY_DATAPATH));
-            val.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String v = KeyboardDialog.showDialog("Enter value: ", "");
-                    if (v.length() > 0) {
-                        val.setData(v);
+            JPanel labelPanel = new JPanel(new GridLayout(INTERFACES_SETTINGS.length + values.length(), 1));
+            JPanel valPanel = new JPanel(new GridLayout(INTERFACES_SETTINGS.length + values.length(), 1));
+            for (int i = 0; i < INTERFACES_SETTINGS.length; i++) {
+                labelPanel.add(new JLabel(INTERFACES_SETTINGS[i]));
+                valPanel.add(settingVals[i] = new SettingsValueButton());
+            }
+            updateValues();
+
+            for (int i = 0; i < values.length(); i++) {
+                // StatusNumberItem value = new StatusNumberItem( jsonValue.getString( Constants.NET.KEY_NAME ),
+                // jsonValue.getString( Constants.NET.KEY_DATAPATH ));
+                labelPanel.add(new JLabel(values.getJSONObject(i).getString(Constants.NET.KEY_NAME)));
+                final BindedJButton val = new BindedJButton(values.getJSONObject(i).getString(Constants.NET.KEY_DATAPATH));
+                val.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String v = KeyboardDialog.showDialog("Enter value: ", "");
+                        if (v.length() > 0) {
+                            val.setData(v);
+                        }
                     }
-                }
-            });
-            valPanel.add(val);
+                });
+                valPanel.add(val);
+            }
+
+            settingsPanel.add(labelPanel, BorderLayout.WEST);
+            settingsPanel.add(valPanel, BorderLayout.CENTER);
+
+            add(settingsPanel);
+            add(getButtonPanel(), BorderLayout.EAST);
         }
-
-        settingsPanel.add(labelPanel, BorderLayout.WEST);
-        settingsPanel.add(valPanel, BorderLayout.CENTER);
-
-        add(settingsPanel);
-        add(getButtonPanel(), BorderLayout.EAST);
     }
 
     public void updateValues() {
@@ -105,7 +100,6 @@ public class NetSettingsPage extends HMIPage {
             String text = settingVals[i].getText();
             interfaces += String.format("%s%s %s\n", INTERFACES_INDENT, INTERFACES_SETTINGS[i], text.contains(" ") ? "\"" + text + "\"" : text);
         }
-        System.out.println(interfaces);
         Logger.logLine(interfaces);
         // Set file content
         interfacesContent.setContent(interfaces);

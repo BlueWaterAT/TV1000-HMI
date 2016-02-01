@@ -18,7 +18,6 @@ public class BindedJButton extends JButton {
     }
 
     public void setData(String text) {
-        System.out.println("BUTTON TEXT");
         super.setText(text);
         data.setContent(text);
     }

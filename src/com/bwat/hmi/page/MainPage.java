@@ -39,19 +39,19 @@ public class MainPage extends HMIPage {
         add(timers);
 
         // Create the menu
-//		JPanel right = new JPanel( new BorderLayout( 0, Constants.HV_GAP ) );
+        //		JPanel right = new JPanel( new BorderLayout( 0, Constants.HV_GAP ) );
 
         // Create battery display
-//		final JProgressBar battery = new JProgressBar( 0, 100 );
-//		battery.setIndeterminate( false );
-//		battery.setStringPainted( true );
-//		battery.addChangeListener( new ChangeListener() {
-//			public void stateChanged( ChangeEvent arg0 ) {
-//				battery.setString( "Battery: " + String.format( "%d%%", (int) ( battery.getPercentComplete() * 100 ) ) );
-//			}
-//		} );
-//		battery.setValue( 100 );
-//		right.add( battery, BorderLayout.NORTH );
+        //		final JProgressBar battery = new JProgressBar( 0, 100 );
+        //		battery.setIndeterminate( false );
+        //		battery.setStringPainted( true );
+        //		battery.addChangeListener( new ChangeListener() {
+        //			public void stateChanged( ChangeEvent arg0 ) {
+        //				battery.setString( "Battery: " + String.format( "%d%%", (int) ( battery.getPercentComplete() * 100 ) ) );
+        //			}
+        //		} );
+        //		battery.setValue( 100 );
+        //		right.add( battery, BorderLayout.NORTH );
 
         // Load and generate navigation buttons
         JSONArray pages = json.getJSONArray(Constants.MAIN.KEY_PAGES);
@@ -67,7 +67,7 @@ public class MainPage extends HMIPage {
             });
             menu.add(b);
         }
-//		right.add( menu, BorderLayout.CENTER );
+        //		right.add( menu, BorderLayout.CENTER );
 
         add(menu);
     }

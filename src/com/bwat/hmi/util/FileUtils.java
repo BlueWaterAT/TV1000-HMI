@@ -17,13 +17,13 @@ public class FileUtils {
 
     // There was an issue with the path during runtime not being the path to the jar file,
     // so no files could be accessed. This finds and saves the actual runtime path.
-    private static String HOME = "";
+    public static String HOME = "";
 
     static {
         try {
             File homeFile = new File(HMIDriver.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             HOME = (homeFile.isFile() ? homeFile.getParent() : homeFile.getAbsolutePath()) + File.separator;
-//			HOME = new File( HMIDriver.class.getProtectionDomain().getCodeSource().getLocation().toURI() ).getParent() + File.separator;
+            //			HOME = new File( HMIDriver.class.getProtectionDomain().getCodeSource().getLocation().toURI() ).getParent() + File.separator;
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

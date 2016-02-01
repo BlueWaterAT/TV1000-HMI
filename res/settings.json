@@ -5,7 +5,7 @@
     "vehicle-name":"TV1000",
     "spinners-per-page":5,
     "csv-list-limit":50,
-    "bg-color":"#000000",
-    "fg-color":"#FF0000",
-    "button-color":"#0000FF"
+    "bg-color":"#005555",
+    "fg-color":"#000000",
+    "button-color":"#00AAAA"
 }

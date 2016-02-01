@@ -1,6 +1,7 @@
 package com.bwat.hmi.util;
 
 import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
@@ -51,7 +52,7 @@ public class SwingUtils {
     /**
      * Recursively sets the Font of a component and all of its children
      *
-     * @param c    Root component
+     * @param c Root component
      */
     public static void setFont_r(Component c, Font f) {
         for (Component comp : getAllComponents_r(c)) {
@@ -178,4 +179,16 @@ public class SwingUtils {
         return createGridJPanel(new GridLayout(1, components.length, hgap, 0), components);
     }
 
+    /**
+     * Creates a JLabel with a certain font size
+     *
+     * @param message  The JLabel's text
+     * @param fontSize Font size for the text
+     * @return The generated JLabel
+     */
+    public static JLabel createJLabel(String message, float fontSize) {
+        JLabel label = new JLabel(message);
+        label.setFont(label.getFont().deriveFont(fontSize));
+        return label;
+    }
 }

@@ -47,12 +47,12 @@ public class StatusSwitchItem extends JPanel {
         status = status.replaceAll("\\s+", "");
         if (status.equals(STATUS_ON)) {
             toggle.setEnabled(true);
-//			toggle.setSelected( true );
+            //			toggle.setSelected( true );
             toggle.setText("ON");
             toggle.setLockedBackground(Color.GREEN);
         } else if (status.equals(STATUS_OFF)) {
             toggle.setEnabled(true);
-//			toggle.setSelected( false );
+            //			toggle.setSelected( false );
             toggle.setText("OFF");
             toggle.setLockedBackground(Color.RED);
         } else if (status.equals(STATUS_DISABLED)) {
