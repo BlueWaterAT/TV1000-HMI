@@ -2,25 +2,22 @@ package com.bwat.hmi.prg;
 
 import com.bwat.hmi.Constants;
 import com.bwat.hmi.HMI;
+import com.bwat.hmi.ui.KeypadDialog;
 import com.bwat.hmi.util.FileUtils;
 import com.bwat.hmi.util.JSONUtils;
 import com.bwat.hmi.util.MathUtils;
+import com.bwat.hmi.util.StringUtils;
 import com.bwat.hmi.util.SwingUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
@@ -46,7 +43,7 @@ public class PagedProgramTable extends JPanel {
     String programPath;
 
     // Number of elements to display on a page
-    int pageSize = 8;
+    int pageSize = 10;
 
     // Currently displayed page number
     int currentPage;
@@ -87,6 +84,7 @@ public class PagedProgramTable extends JPanel {
         setFont(HMI.getInstance().getFont());
         setBackground(HMI.getInstance().getBackground());
         setForeground(HMI.getInstance().getForeground());
+        pageSize = settings.has(KEY_PAGE_SIZE) ? settings.getInt(KEY_PAGE_SIZE) : pageSize;
 
         // JTable settings
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -115,16 +113,10 @@ public class PagedProgramTable extends JPanel {
         jumpPage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Prompt setup
-                JSpinner pageSelect = new JSpinner(new SpinnerNumberModel(currentPage, 1, getNumPages(), 1));
-                JPanel spinnerPanel = new JPanel(new BorderLayout());
-                spinnerPanel.add(pageSelect, BorderLayout.CENTER);
-                spinnerPanel.add(new JLabel(" / " + getNumPages()), BorderLayout.EAST);
-                SwingUtils.setFont_r(spinnerPanel, spinnerPanel.getFont().deriveFont(FONT_SIZE));
-
                 // Prompt the user for the page # they want to jump to
-                if (JOptionPane.showConfirmDialog(null, new Object[]{SwingUtils.createJLabel("Enter page number", FONT_SIZE), spinnerPanel}, "Jump to Page", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
-                    jumpToPage((int) pageSelect.getValue()); // Jump to the selected page
+                String num = KeypadDialog.showDialog("Enter page number:", "");
+                if (num.length() > 0 && StringUtils.isNumber(num)) {
+                    jumpToPage(Integer.parseInt(num)); // Jump to the selected page
                 }
             }
         });
@@ -134,16 +126,10 @@ public class PagedProgramTable extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (getNumRows() > 0) { // Nothing to jump to
-                    // Prompt setup
-                    JSpinner rowSelect = new JSpinner(new SpinnerNumberModel(getFirstRowOnPage(currentPage) + 1, 1, getNumRows(), 1));
-                    JPanel spinnerPanel = new JPanel(new BorderLayout());
-                    spinnerPanel.add(rowSelect, BorderLayout.CENTER);
-                    spinnerPanel.add(new JLabel(" / " + getNumRows()), BorderLayout.EAST);
-                    SwingUtils.setFont_r(spinnerPanel, spinnerPanel.getFont().deriveFont(FONT_SIZE));
-
                     // Prompt the user for the row # they want to jump to
-                    if (JOptionPane.showConfirmDialog(null, new Object[]{SwingUtils.createJLabel("Enter row number", FONT_SIZE), spinnerPanel}, "Jump to Row", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
-                        jumpToRow((int) rowSelect.getValue());
+                    String num = KeypadDialog.showDialog("Enter row number:", "");
+                    if (num.length() > 0 && StringUtils.isNumber(num)) {
+                        jumpToRow(Integer.parseInt(num)); // Jump to the selected page
                     }
                 }
             }
@@ -153,14 +139,10 @@ public class PagedProgramTable extends JPanel {
         updatePageSize.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Prompt setup
-                JSpinner sizeSelect = new JSpinner(new SpinnerNumberModel(pageSize, 1, 100, 1));
-                sizeSelect.setFont(sizeSelect.getFont().deriveFont(FONT_SIZE));
-
                 // Prompt the user for the new pageSize
-                if (JOptionPane.showConfirmDialog(null, new Object[]{SwingUtils.createJLabel("Enter row number", FONT_SIZE), sizeSelect}, "Jump to Row", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
-                    //Set the pageSize and reload the first page
-                    setPageSize((int) sizeSelect.getValue());
+                String num = KeypadDialog.showDialog("Enter new page size:", "");
+                if (num.length() > 0 && StringUtils.isNumber(num)) {
+                    setPageSize(MathUtils.clamp_i(Integer.parseInt(num), 1, 100)); // Jump to the selected page
                 }
             }
         });
@@ -168,7 +150,6 @@ public class PagedProgramTable extends JPanel {
         // Assemble control panel
         ctrlPanel.add(SwingUtils.createGridJPanel(1, 3, jumpPrev, jumpPage, jumpNext), BorderLayout.WEST);
         ctrlPanel.add(SwingUtils.createGridJPanel(2, 1, updatePageSize, jumpRow), BorderLayout.EAST);
-        SwingUtils.setFont_r(ctrlPanel, ctrlPanel.getFont().deriveFont(FONT_SIZE).deriveFont(Font.BOLD));
 
         // Scroll panel for the table with headers
         JScrollPane scroll = new JScrollPane(table);

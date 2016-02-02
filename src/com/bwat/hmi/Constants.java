@@ -69,7 +69,7 @@ public class Constants {
 
         public static final String KEY_JTB_PATH = "jtb-path";
         public static final String KEY_ROW_H = "row-height";
-        public static final String KEY_PRIMARY_SORT = "primary-sort";
+        public static final String KEY_PAGE_SIZE = "page-size";
 
         //File format variables
         public final static String EXTENSION = ".jtb";
@@ -80,9 +80,6 @@ public class Constants {
 
         //FTP Related
         public final static String SFTP_ALERT_FILE = "SFTPUPDATE";
-
-        //GUI
-        public final static float FONT_SIZE = 28.0f; //TODO: Needed?
     }
 
     public static final class RFID {

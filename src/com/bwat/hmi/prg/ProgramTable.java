@@ -28,7 +28,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -55,6 +54,8 @@ public class ProgramTable extends JTable {
 
     // List of all column types
     private ArrayList<CellType> columnTypes = new ArrayList<CellType>();
+
+    // Lists of all the entries for COMBO columns
     private HashMap<Integer, String[]> comboValues = new HashMap<Integer, String[]>();
 
     // List of all mouseover tooltip messages
@@ -67,20 +68,22 @@ public class ProgramTable extends JTable {
         super(numRows, numColumns);
         initGUI();
 
+        // Manually handle click events for certain column types
+        // to allow for a custom input method
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                Point p = e.getPoint();
-                int r = rowAtPoint(p), c = columnAtPoint(p);
+                int r = rowAtPoint(e.getPoint()), c = columnAtPoint(e.getPoint());
                 if (MathUtils.inRange_in_ex(r, 0, getRowCount()) && MathUtils.inRange_in_ex(c, 0, getColumnCount())) {
                     switch (getColumnType(c)) {
                         case TEXT:
+                            // TEXT input should open up a keyboard
                             setValueAt(KeyboardDialog.showDialog("Enter value: ", ""), r, c);
                             break;
                         case COMBO:
                             String[] vals = comboValues.get(c);
                             if (vals != null) {
-                                // If this combobox contains only numeric entries, we sould open up a
+                                // If this COMBO column contains only numeric entries, we should open up a
                                 // keypad instead of a selection screen
                                 boolean numeric = true;
                                 for (String val : vals) {
@@ -104,7 +107,7 @@ public class ProgramTable extends JTable {
                                     newValue = ListDialog.showDialog("Select a Value", vals, (String) getValueAt(r, c), getFont(), 24f);
                                 }
 
-                                // Set the new value and make it visible
+                                // Set the new value
                                 setValueAt(newValue, r, c);
                             }
                             break;
@@ -116,10 +119,9 @@ public class ProgramTable extends JTable {
                                 Object tval = getValueAt(r, c);
                                 newValue = tval == null ? "0" : tval.toString();
                             }
-                            // Set the new value and make it visible
+
+                            // Set the new value
                             setValueAt(StringUtils.isNumber(newValue) ? Integer.parseInt(newValue) : null, r, c);
-                            repaint();
-                            //                            ( (DefaultTableModel) getModel() ).fireTableDataChanged();
                             break;
                     }
                 }
@@ -334,14 +336,18 @@ public class ProgramTable extends JTable {
                 setValueAt(null, i, column);
             }
             columnTypes.set(column, type);
+
+            // Dummy editor to disable default action when clicking a cell
             DefaultCellEditor dummy = new DefaultCellEditor(new JTextField());
-            dummy.setClickCountToStart(1000); //Nobody's doing that, let the MouseEvent take over
+            dummy.setClickCountToStart(1000); // Nobody's doing that, let the MouseEvent take over
+
+            // Set up the column in the JTable
             switch (type) {
                 case COMBO:
-                    //Add entries into type
+                    // Add entries into type
                     comboValues.put(column, comboEntries);
 
-                    //Only set a renderer, editing handled by MouseEvent
+                    // Only set a renderer, editing handled by MouseEvent
                     JComboBoxCellRenderer renderer = new JComboBoxCellRenderer();
                     renderer.setModel(new DefaultComboBoxModel<String>(comboEntries));
                     renderer.setBackground(HMI.getInstance().getBackground());
@@ -351,12 +357,12 @@ public class ProgramTable extends JTable {
                     break;
                 case NUMBER:
                 case TEXT:
-                    //These will all be handled by a MouseEvent
+                    // These will all be handled by a MouseEvent
                     getColumnModel().getColumn(column).setCellEditor(dummy);
                     getColumnModel().getColumn(column).setCellRenderer(new DefaultTableCellRenderer());
                     break;
-                // CHECK uses a Boolean, which gets represented as a checkbox
                 case CHECK:
+                    // CHECK uses a Boolean, which gets represented as a checkbox
                     getColumnModel().getColumn(column).setCellEditor(getDefaultEditor(Boolean.class));
                     getColumnModel().getColumn(column).setCellRenderer(getDefaultRenderer(Boolean.class));
                     break;

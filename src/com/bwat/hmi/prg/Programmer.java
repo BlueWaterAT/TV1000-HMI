@@ -17,13 +17,11 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
 import static com.bwat.hmi.Constants.PROGRAM.*;
 
@@ -42,9 +40,6 @@ public class Programmer extends JPanel {
 
     // The table contained in PagedProgramTable
     ProgramTable table;
-
-    // Holds a copy of a row's data
-    private ArrayList<Object> rowCopy = new ArrayList<Object>();
 
     // File IO
     private String openFilePath = null;
@@ -148,7 +143,6 @@ public class Programmer extends JPanel {
         // Assemble the control panel
         JPanel controls = SwingUtils.createGridJPanel(1, 3, insert, delete, HMI.getInstance().generateReturnButton());
         controls.setPreferredSize(new Dimension(getWidth(), 75));
-        SwingUtils.setFont_r(controls, controls.getFont().deriveFont(FONT_SIZE).deriveFont(Font.BOLD));
 
         // Add everything
         setLayout(new BorderLayout());
