@@ -77,9 +77,10 @@ public class Programmer extends JPanel {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        if (!paged.isSelfChanging() && openFilePath != null) {
+                        if (!paged.isSelfChanging() && openFilePath != null && (System.currentTimeMillis() - lastSaveTime) > SAVE_RELOAD_TIME) {
+                            log.info("Table change detected, saving...");
                             lastSaveTime = System.currentTimeMillis();
-                            table.saveTableToPath(openFilePath);
+                            //                            table.saveTableToPath(openFilePath);
                             paged.savePage();
                         }
                     }
@@ -90,10 +91,9 @@ public class Programmer extends JPanel {
         //Create the SFTP update notifier file
         if (!FileUtils.exists("prg/" + SFTP_ALERT_FILE)) {
             try {
-                PrintWriter pw = new PrintWriter(FileUtils.getFile("prg/" + SFTP_ALERT_FILE));
-                pw.close();
+                new PrintWriter(FileUtils.getFile("prg/" + SFTP_ALERT_FILE)).close();
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                log.warn("Unable to clear SFTP alert file: {}", e.getMessage());
             }
         }
 
@@ -106,8 +106,14 @@ public class Programmer extends JPanel {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        if (f.getName().equals(SFTP_ALERT_FILE)) {
+                        if (f.getName().equals(SFTP_ALERT_FILE) && f.length() > 0) {
+                            try {
+                                new PrintWriter(FileUtils.getFile("prg/" + SFTP_ALERT_FILE)).close(); // Clear the file
+                            } catch (FileNotFoundException e) {
+                                log.warn("Unable to clear SFTP alert file: {}", e.getMessage());
+                            }
                             log.info("SFTP Notification received, reloading...");
+                            lastSaveTime = System.currentTimeMillis();
                             paged.fullReload();
                         }
                     }

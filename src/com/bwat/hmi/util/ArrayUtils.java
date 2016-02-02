@@ -56,4 +56,13 @@ public class ArrayUtils {
         }
         return rev;
     }
+
+    public static <T> boolean contains(T[] arr, T value) {
+        for (T val : arr) {
+            if (val.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

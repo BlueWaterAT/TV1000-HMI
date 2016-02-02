@@ -36,6 +36,7 @@ jar {
         attributes 'Implementation-Title': 'TV1000 HMI', 'Main-Class': 'com.bwat.hmi.HMIDriver'
     }
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', '*.json', '*.csv', '*.txt', 'interfaces', 'dev'
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', '*.json', '*.csv', '*.txt', 'interfaces', 'dev', 'prg/'
+    baseName 'hmi'
 }
 

@@ -53,7 +53,7 @@ public class StatusNumberItem extends JPanel {
                     setValue(Integer.parseInt(content));
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(StatusNumberItem.this, "Invalid file content \"" + content + "\", cannot be parsed as int");
-                   log.error("Invalid file content, cannot be parsed as int");
+                    log.error("Invalid file content, cannot be parsed as int");
                 }
             }
         });

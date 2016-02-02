@@ -2,7 +2,6 @@ package com.bwat.hmi.page;
 
 import com.bwat.hmi.Constants;
 import com.bwat.hmi.HMIDriver;
-import com.bwat.hmi.Logger;
 import com.bwat.hmi.data.BindedJButton;
 import com.bwat.hmi.data.BindedString;
 import com.bwat.hmi.data.BindedStringListener;
@@ -83,7 +82,6 @@ public class NetSettingsPage extends HMIPage {
 
     public void updateValues() {
         String c = interfacesContent.getContent();
-        Logger.logLine(String.format("READ:\n%s\nEND", c));
         for (int i = 0; i < INTERFACES_SETTINGS.length; i++) {
             String key = INTERFACES_SETTINGS[i];
             if (c.contains(key)) {
@@ -100,7 +98,6 @@ public class NetSettingsPage extends HMIPage {
             String text = settingVals[i].getText();
             interfaces += String.format("%s%s %s\n", INTERFACES_INDENT, INTERFACES_SETTINGS[i], text.contains(" ") ? "\"" + text + "\"" : text);
         }
-        Logger.logLine(interfaces);
         // Set file content
         interfacesContent.setContent(interfaces);
     }

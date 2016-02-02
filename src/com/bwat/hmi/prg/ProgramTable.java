@@ -1,7 +1,10 @@
 package com.bwat.hmi.prg;
 
+import com.bwat.hmi.HMI;
+import com.bwat.hmi.ui.KeyboardDialog;
 import com.bwat.hmi.ui.KeypadDialog;
 import com.bwat.hmi.ui.ListDialog;
+import com.bwat.hmi.util.ArrayUtils;
 import com.bwat.hmi.util.FileUtils;
 import com.bwat.hmi.util.MathUtils;
 import com.bwat.hmi.util.StringUtils;
@@ -21,23 +24,21 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.event.PopupMenuEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -54,6 +55,7 @@ public class ProgramTable extends JTable {
 
     // List of all column types
     private ArrayList<CellType> columnTypes = new ArrayList<CellType>();
+    private HashMap<Integer, String[]> comboValues = new HashMap<Integer, String[]>();
 
     // List of all mouseover tooltip messages
     private ArrayList<String> tooltips = new ArrayList<String>();
@@ -64,6 +66,65 @@ public class ProgramTable extends JTable {
     public ProgramTable(int numRows, int numColumns) {
         super(numRows, numColumns);
         initGUI();
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Point p = e.getPoint();
+                int r = rowAtPoint(p), c = columnAtPoint(p);
+                if (MathUtils.inRange_in_ex(r, 0, getRowCount()) && MathUtils.inRange_in_ex(c, 0, getColumnCount())) {
+                    switch (getColumnType(c)) {
+                        case TEXT:
+                            setValueAt(KeyboardDialog.showDialog("Enter value: ", ""), r, c);
+                            break;
+                        case COMBO:
+                            String[] vals = comboValues.get(c);
+                            if (vals != null) {
+                                // If this combobox contains only numeric entries, we sould open up a
+                                // keypad instead of a selection screen
+                                boolean numeric = true;
+                                for (String val : vals) {
+                                    if (!StringUtils.isNumber(val)) {
+                                        numeric = false;
+                                        break;
+                                    }
+                                }
+                                String newValue;
+                                if (numeric) {
+                                    // Get a new value using the keypad interface
+                                    newValue = KeypadDialog.showDialog("Enter Value", "");
+
+                                    // Revert back to the original value if an invalid number is entered,
+                                    // or the number entered is not an option
+                                    if (!StringUtils.isNumber(newValue) || ArrayUtils.contains(vals, newValue)) {
+                                        newValue = (String) getValueAt(r, c);
+                                    }
+                                } else {
+                                    // Get a new value with an enlarged combo box selection screen
+                                    newValue = ListDialog.showDialog("Select a Value", vals, (String) getValueAt(r, c), getFont(), 24f);
+                                }
+
+                                // Set the new value and make it visible
+                                setValueAt(newValue, r, c);
+                            }
+                            break;
+                        case NUMBER:
+                            // Get a new value using the keypad interface
+                            String newValue;
+                            newValue = KeypadDialog.showDialog("Enter Value", "");
+                            if (!StringUtils.isNumber(newValue)) {
+                                Object tval = getValueAt(r, c);
+                                newValue = tval == null ? "0" : tval.toString();
+                            }
+                            // Set the new value and make it visible
+                            setValueAt(StringUtils.isNumber(newValue) ? Integer.parseInt(newValue) : null, r, c);
+                            repaint();
+                            //                            ( (DefaultTableModel) getModel() ).fireTableDataChanged();
+                            break;
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -261,7 +322,6 @@ public class ProgramTable extends JTable {
 
     /**
      * Sets a columns to a specific type
-     * //TODO: This code looks a bit sketchy. Clean it up
      *
      * @param column       Column index
      * @param type         Column type
@@ -269,104 +329,37 @@ public class ProgramTable extends JTable {
      *                     combo box
      */
     public void setColumnType(final int column, CellType type, final String... comboEntries) {
-        if (column >= 0 && column < getColumnCount()) {
+        if (MathUtils.inRange_in_ex(column, 0, getColumnCount())) {
             for (int i = 0; i < getRowCount(); i++) {
                 setValueAt(null, i, column);
             }
             columnTypes.set(column, type);
+            DefaultCellEditor dummy = new DefaultCellEditor(new JTextField());
+            dummy.setClickCountToStart(1000); //Nobody's doing that, let the MouseEvent take over
             switch (type) {
-                case TEXT:
-                    getColumnModel().getColumn(column).setCellEditor(new DefaultCellEditor(new JTextField()));
-                    getColumnModel().getColumn(column).setCellRenderer(new DefaultTableCellRenderer());
-                    break;
                 case COMBO:
-                    JComboBox<String> combo = new JComboBox<String>(comboEntries);
-                    combo.addPopupMenuListener(new PopupMenuAdapter() {
-                        @Override
-                        public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
-                            SwingUtilities.invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    JComboBox<String> c = (JComboBox<String>) e.getSource();
-                                    c.hidePopup();
+                    //Add entries into type
+                    comboValues.put(column, comboEntries);
 
-                                    // If this combobox contains only numeric entries, we sould open up a
-                                    // keypad instead of a selection screen
-                                    boolean numeric = true;
-                                    for (int i = 0; i < c.getItemCount(); i++) {
-                                        if (!StringUtils.isNumber(c.getItemAt(i))) {
-                                            numeric = false;
-                                            break;
-                                        }
-                                    }
-                                    String newValue;
-                                    if (numeric) {
-                                        // Get a new value using the keypad interface
-                                        newValue = KeypadDialog.showDialog("Enter Value", "");
-
-                                        // Revert back to the original value if an invalid number is entered,
-                                        // or the number entered is not an option
-                                        if (!StringUtils.isNumber(newValue) || ((DefaultComboBoxModel) c.getModel()).getIndexOf(newValue) == -1) {
-                                            newValue = (String) getValueAt(rowAtPoint(c.getLocation()), column);
-                                        }
-                                    } else {
-                                        // Get a new value with an enlarged combo box selection screen
-                                        newValue = ListDialog.showDialog("Select a Value", comboEntries, (String) c.getSelectedItem(), getFont(), 24f);
-                                    }
-
-                                    // Set the new value and make it visible
-                                    setValueAt(newValue, rowAtPoint(c.getLocation()), column);
-                                    ((DefaultTableModel) getModel()).fireTableDataChanged();
-                                }
-                            });
-                        }
-                    });
-                    combo.addFocusListener(new FocusAdapter() {
-                        @Override
-                        public void focusGained(FocusEvent e) {
-                            ((JComboBox<String>) e.getSource()).hidePopup();
-                        }
-                    });
-                    getColumnModel().getColumn(column).setCellEditor(new JComboBoxCellEditor(combo, getFont()));
+                    //Only set a renderer, editing handled by MouseEvent
+                    JComboBoxCellRenderer renderer = new JComboBoxCellRenderer();
+                    renderer.setModel(new DefaultComboBoxModel<String>(comboEntries));
+                    renderer.setBackground(HMI.getInstance().getBackground());
+                    renderer.setForeground(HMI.getInstance().getForeground());
+                    renderer.setFont(HMI.getInstance().getFont());
+                    getColumnModel().getColumn(column).setCellRenderer(renderer);
+                    break;
+                case NUMBER:
+                case TEXT:
+                    //These will all be handled by a MouseEvent
+                    getColumnModel().getColumn(column).setCellEditor(dummy);
                     getColumnModel().getColumn(column).setCellRenderer(new DefaultTableCellRenderer());
                     break;
+                // CHECK uses a Boolean, which gets represented as a checkbox
                 case CHECK:
                     getColumnModel().getColumn(column).setCellEditor(getDefaultEditor(Boolean.class));
                     getColumnModel().getColumn(column).setCellRenderer(getDefaultRenderer(Boolean.class));
                     break;
-                case NUMBER:
-                    // Uses a dummy combo box only as an editor to allow for easy popup control
-                    JComboBox<Integer> dummyCombo = new JComboBox<Integer>();
-                    dummyCombo.addPopupMenuListener(new PopupMenuAdapter() {
-                        @Override
-                        public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
-                            SwingUtilities.invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    JComboBox<Integer> c = (JComboBox<Integer>) e.getSource();
-                                    c.hidePopup();
-                                    String newValue;
-                                    // Get a new value using the keypad interface
-                                    newValue = KeypadDialog.showDialog("Enter Value", "");
-                                    if (!StringUtils.isNumber(newValue)) {
-                                        Object tval = getValueAt(rowAtPoint(c.getLocation()), column);
-                                        newValue = tval == null ? "0" : tval.toString();
-                                    }
-                                    // Set the new value and make it visible
-                                    setValueAt(StringUtils.isNumber(newValue) ? Integer.parseInt(newValue) : null, rowAtPoint(c.getLocation()), column);
-                                    ((DefaultTableModel) getModel()).fireTableDataChanged();
-                                }
-                            });
-                        }
-                    });
-                    dummyCombo.addFocusListener(new FocusAdapter() {
-                        @Override
-                        public void focusGained(FocusEvent e) {
-                            ((JComboBox<String>) e.getSource()).hidePopup();
-                        }
-                    });
-                    getColumnModel().getColumn(column).setCellEditor(new JComboBoxCellEditor(dummyCombo, getFont()));
-                    getColumnModel().getColumn(column).setCellRenderer(new DefaultTableCellRenderer());
             }
         }
     }
@@ -407,7 +400,7 @@ public class ProgramTable extends JTable {
      * @param col Column index
      */
     public void setValueAt(Object val, int row, int col) {
-        getModel().setValueAt(val, row, col);
+        getModel().setValueAt(val, convertRowIndexToModel(row), convertColumnIndexToModel(col));
     }
 
     /**

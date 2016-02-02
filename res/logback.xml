@@ -8,7 +8,7 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file> log/log-${byDay}.txt </file>
+        <file>log/log-${byDay}.txt</file>
         <append>true</append>
         <encoder>
             <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
@@ -16,8 +16,7 @@
     </appender>
 
     <root level="debug">
-        <appender-ref ref="FILE" />
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
     </root>
-
 </configuration>

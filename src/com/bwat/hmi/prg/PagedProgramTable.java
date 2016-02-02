@@ -23,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -168,7 +167,7 @@ public class PagedProgramTable extends JPanel {
 
         // Assemble control panel
         ctrlPanel.add(SwingUtils.createGridJPanel(1, 3, jumpPrev, jumpPage, jumpNext), BorderLayout.WEST);
-        ctrlPanel.add(SwingUtils.createGridJPanel(1, 2, updatePageSize, jumpRow), BorderLayout.EAST);
+        ctrlPanel.add(SwingUtils.createGridJPanel(2, 1, updatePageSize, jumpRow), BorderLayout.EAST);
         SwingUtils.setFont_r(ctrlPanel, ctrlPanel.getFont().deriveFont(FONT_SIZE).deriveFont(Font.BOLD));
 
         // Scroll panel for the table with headers
@@ -272,6 +271,7 @@ public class PagedProgramTable extends JPanel {
                 }
                 // Save the index for the end of the file
                 idxs.add(f.getFilePointer());
+                f.close();
             }
         } catch (IOException e) {
             log.error("Error while reading PRG file \"{}\"", programPath);
@@ -308,53 +308,56 @@ public class PagedProgramTable extends JPanel {
     public void savePage() {
         // Grab the page data from the table
         ArrayList<ArrayList<Object>> rowData = table.exportTableData();
-
-        // Build a string of the page data to put in the PRG file
-        String rowString = "";
-        for (int row = 0; row < rowData.size(); row++) {
-            for (int col = 0, len = rowData.get(row).size(); col < len; col++) {
-                rowString += String.valueOf(rowData.get(row).get(col)) + (col == len - 1 ? "\n" : COMMA);
+        if (!rowData.equals(displayedRows)) {
+            // Build a string of the page data to put in the PRG file
+            String rowString = "";
+            for (int row = 0; row < rowData.size(); row++) {
+                for (int col = 0, len = rowData.get(row).size(); col < len; col++) {
+                    rowString += String.valueOf(rowData.get(row).get(col)) + (col == len - 1 ? "\n" : COMMA);
+                }
             }
-        }
 
-        // Load the file
-        RandomAccessFile f = getFile(true);
-        try {
-            if (f != null && f.length() > 0) {
-                // Get the starting index of the first row of the page
-                long endIdx = getRowByteIdx(getFirstRowOnPage(currentPage));
+            // Load the file
+            RandomAccessFile f = getFile(true);
+            try {
+                if (f != null && f.length() > 0) {
+                    // Get the starting index of the first row of the page
+                    long endIdx = getRowByteIdx(getFirstRowOnPage(currentPage));
 
-                // Read everything before the row into a buffer
-                String buf = "";
-                while (f.getFilePointer() != endIdx) {
-                    buf += f.readLine() + "\n";
+                    // Read everything before the row into a buffer
+                    String buf = "";
+                    while (f.getFilePointer() != endIdx) {
+                        buf += f.readLine() + "\n";
+                    }
+
+                    // Skip all of the lines on the page
+                    for (int i = getFirstRowOnPage(currentPage), stop = Math.min(getNumRows(), i + pageSize); i < stop; i++) {
+                        f.readLine();
+                    }
+
+                    // Add the new page data to the buffer
+                    buf += rowString;
+
+                    // Read the rest of the file into the buffer
+                    while (f.getFilePointer() != f.length()) {
+                        buf += f.readLine() + "\n";
+                    }
+
+                    // Seek back to the beginning and write out the buffer
+                    f.seek(0);
+                    f.setLength(buf.length());
+                    f.write(buf.getBytes());
+                    f.close();
+                    log.info("PRG file \"{}\" successfully saved", programPath);
                 }
-
-                // Skip all of the lines on the page
-                for (int i = getFirstRowOnPage(currentPage), stop = Math.min(getNumRows(), i + pageSize); i < stop; i++) {
-                    f.readLine();
-                }
-
-                // Add the new page data to the buffer
-                buf += rowString;
-
-                // Read the rest of the file into the buffer
-                while (f.getFilePointer() != f.length()) {
-                    buf += f.readLine() + "\n";
-                }
-
-                // Seek back to the beginning and write out the buffer
-                f.seek(0);
-                f.setLength(buf.length());
-                f.write(buf.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        // Reload the program
-        reloadProgram();
-        jumpToPage(Math.min(currentPage, getNumPages()));
+            // Reload the program
+            reloadProgram();
+            jumpToPage(Math.min(currentPage, getNumPages()));
+        }
     }
 
     /**
@@ -394,6 +397,8 @@ public class PagedProgramTable extends JPanel {
                 f.seek(0);
                 f.setLength(buf.length());
                 f.write(buf.getBytes());
+                f.close();
+                log.info("Row deleted from \"{}\"", programPath);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -592,6 +597,7 @@ public class PagedProgramTable extends JPanel {
                     }
                     displayedRows.add(rowData); // Add the row to the cache
                 }
+                f.close();
             } catch (IOException e) {
                 log.error("Error while reading PRG file \"{}\"", programPath);
                 e.printStackTrace();

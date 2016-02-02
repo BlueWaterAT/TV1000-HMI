@@ -1,5 +1,6 @@
 package com.bwat.hmi;
 
+import com.bwat.hmi.util.ArrayUtils;
 import com.bwat.hmi.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,6 @@ import javax.swing.UIManager;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.util.Arrays;
 
 public class HMIDriver {
     static Logger log = LoggerFactory.getLogger(HMIDriver.class);
@@ -50,7 +50,8 @@ public class HMIDriver {
 
         } catch (Exception e) {
             // just so we get some kind of response if the HMI doesn't run
-            log.error("FATAL: HMI has crashed. Exception details: {}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()) );
+            log.error("FATAL: HMI has crashed. Exception details: \n{}\n{}\n", e.getMessage(), ArrayUtils.join(e.getStackTrace(), "\n"));
+            System.exit(1); //Make sure the app closes completely
         }
     }
 }
